@@ -1,12 +1,13 @@
 <?php namespace Iverberk\Larasearch;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 
-class Proxy {
+class Proxy
+{
 
     /**
      * @var array
@@ -101,13 +102,13 @@ class Proxy {
 
         $perPage = $perPage > 0 ? $perPage : 50;
 
-        $from = $perPage * ($page-1);
+        $from = $perPage * ($page - 1);
 
-        $query['size'] = $perPage;
-        $query['from'] = $from;
+        $query['query']['size'] = $perPage;
+        $query['query']['from'] = $from;
 
         /* @var $response \Iverberk\Larasearch\Response */
-        $response = $this->searchByQuery($query);
+        $response = $this->search(null, $query);
 
         $items = array_map(function ($hit) {
             return $hit['_source'];
@@ -121,6 +122,15 @@ class Proxy {
         ]));
     }
 
+    public function elasticGet($query)
+    {
+        $response = $this->search(null, $query);
+        $items = array_map(function ($hit) {
+            return $hit['_source'];
+        }, $response->getHits());
+        return $items;
+    }
+
     /**
      * Retrieves a single document by identifier
      *
@@ -130,12 +140,12 @@ class Proxy {
     public function searchById($id)
     {
         return App::make('iverberk.larasearch.response.result', $this->config['client']->get(
-                [
-                    'index' => $this->getIndex()->getName(),
-                    'type' => $this->getType(),
-                    'id' => $id
-                ]
-            )
+            [
+                'index' => $this->getIndex()->getName(),
+                'type' => $this->getType(),
+                'id' => $id
+            ]
+        )
         );
     }
 
@@ -160,13 +170,11 @@ class Proxy {
         $index = App::make('iverberk.larasearch.index', array('name' => $newName, 'proxy' => $this));
         $index->create($mapping);
 
-        if ($index->aliasExists($name))
-        {
+        if ($index->aliasExists($name)) {
             $index->import($model, $relations, $batchSize, $callback);
             $remove = [];
 
-            foreach (Index::getAlias($name) as $index => $aliases)
-            {
+            foreach (Index::getAlias($name) as $index => $aliases) {
                 $remove = [
                     'remove' => [
                         'index' => $index,
@@ -186,8 +194,7 @@ class Proxy {
 
             Index::updateAliases(['actions' => $actions]);
             Index::clean($name);
-        } else
-        {
+        } else {
             if ($this->config['index']->exists()) $this->config['index']->delete();
 
             $actions[] =
