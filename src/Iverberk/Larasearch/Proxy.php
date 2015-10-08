@@ -3,6 +3,8 @@
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class Proxy {
 
@@ -118,7 +120,7 @@ class Proxy {
             'pageName' => $pageName,
         ]));
     }
-    
+
     /**
      * Retrieves a single document by identifier
      *
