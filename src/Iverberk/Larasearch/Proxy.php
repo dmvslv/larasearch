@@ -93,6 +93,32 @@ class Proxy {
         return App::make('iverberk.larasearch.query', ['proxy' => $this, 'term' => null, 'options' => $options])->execute();
     }
 
+    public function elasticPaginate($query, $perPage = null, $pageName = 'page', $page = null)
+    {
+        $page = $page ?: Paginator::resolveCurrentPage($pageName);
+
+        $perPage = $perPage > 0 ? $perPage : 50;
+
+        $from = $perPage * ($page-1);
+
+        $query['size'] = $perPage;
+        $query['from'] = $from;
+
+        /* @var $response \Iverberk\Larasearch\Response */
+        $response = $this->searchByQuery($query);
+
+        $items = array_map(function ($hit) {
+            return $hit['_source'];
+        }, $response->getHits());
+
+        $total = $response->getTotal();
+
+        return (new LengthAwarePaginator($items, $total, $perPage, $page, [
+            'path' => Paginator::resolveCurrentPath(),
+            'pageName' => $pageName,
+        ]));
+    }
+    
     /**
      * Retrieves a single document by identifier
      *
