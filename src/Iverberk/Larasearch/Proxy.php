@@ -101,8 +101,9 @@ class Proxy
         $page = $page ?: Paginator::resolveCurrentPage($pageName);
 
         $perPage = $perPage > 0 ? $perPage : 50;
+        $perPage = (int)$perPage;
 
-        $from = $page === 0 ? 0 : $perPage * ($page - 1);
+        $from = $page > 0 ? $perPage * ($page - 1) : 0;
 
         $query['query']['size'] = $perPage;
         $query['query']['from'] = $from;
