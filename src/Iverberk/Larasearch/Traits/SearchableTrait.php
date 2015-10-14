@@ -29,6 +29,9 @@ trait SearchableTrait {
      */
     public static $__es_enable = true;
 
+
+    public $afectedModels;
+
     /**
      * Return an instance of the Elasticsearch proxy
      *
