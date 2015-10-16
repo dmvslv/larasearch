@@ -114,8 +114,8 @@ class Proxy
         $items = array_map(function ($hit) use($query) {
             $data = $hit['_source'];
 
-            if (isset($query['sort']['_geo_distance']) && isset($hit['sort'])) {
-                $data['elastic_sort'] = $hit['sort'];
+            if (isset($query['sort']['_geo_distance']) && isset($hit['sort'][0])) {
+                $data['_geo_distance'] = $hit['sort'][0];
             }
             return $data;
 
