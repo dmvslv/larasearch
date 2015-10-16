@@ -111,8 +111,14 @@ class Proxy
         /* @var $response \Iverberk\Larasearch\Response */
         $response = $this->search(null, $query);
 
-        $items = array_map(function ($hit) {
-            return $hit['_source'];
+        $items = array_map(function ($hit) use($query) {
+            $data = $hit['_source'];
+
+            if (isset($query['sort']['_geo_distance']) && isset($hit['sort'])) {
+                $data['elastic_sort'] = $hit['sort'];
+            }
+            return $data;
+
         }, $response->getHits());
 
         $total = $response->getTotal();
