@@ -90,7 +90,9 @@ class ReindexCommand extends Command {
      */
     protected function reindexModel(Model $model)
     {
-        $mapping = $this->option('mapping') ? json_decode(File::get($this->option('mapping')), true) : null;
+        $path = base_path() . "/";
+
+        $mapping = $this->option('mapping') ? json_decode(File::get($path . $this->option('mapping')), true) : null;
 
         $this->info('---> Reindexing ' . get_class($model));
 
